@@ -405,3 +405,65 @@ Then view at `http://<BREV_INSTANCE_HOST>/viewer`.
 **Corrections Made:**
 - Updated `omni_drones/views/__init__.py` to add `usd: bool = False` parameter to both `ArticulationView.get_world_poses()` and `RigidPrimView.get_world_poses()` methods.
 - This change maintains backward compatibility while supporting Isaac Sim 4.1.0's API.
+
+### 4. Enhanced WebRTC Streaming Configuration (Fixed Jan 2026)
+
+**Issue:** WebRTC streaming was not working reliably on headless Brev cloud instances. Users couldn't view the simulation without proper width/height configuration and clear connection instructions.
+
+**Root Cause:**
+- Isaac Sim 4.1.0 requires explicit `width` and `height` parameters in the SimulationApp config for headless streaming to work properly.
+- The kit file lacked complete WebRTC extension settings.
+- Users needed clear instructions on how to establish SSH tunnels and connect to the WebRTC stream.
+
+**Corrections Made:**
+
+1. **Enhanced `init_simulation_app()` in `omni_drones/__init__.py`:**
+   - Added mandatory `width: 1280` and `height: 720` parameters to the SimulationApp config
+   - Added `livestream: 2` config to force WebRTC mode
+   - Improved logging to show WebRTC status on port 8211
+   - Added detailed comments explaining the critical fixes for Brev/headless environments
+
+2. **Updated `kit_files/omni.isaac.sim.omnidrones.webrtc.kit`:**
+   - Explicitly enabled WebRTC extension: `exts."omni.services.streamclient.webrtc".enabled = true`
+   - Added app window settings for headless cloud streaming
+   - Configured render buffer dimensions (1280x720)
+   - Set proper rate limiting for Isaac Sim 4.1.0's update loop
+
+3. **Added Connection Helper to `scripts/play.py`:**
+   - New `print_brev_connection_info()` function that automatically fetches the instance's public IP
+   - Prints clear SSH tunnel command for local machine
+   - Shows the exact browser URL to access the WebRTC stream
+   - Makes it easy for users to connect without guessing ports
+
+4. **Enhanced `scripts/play.yaml` Configuration:**
+   - Added explicit `width: 1280` and `height: 720` top-level parameters
+   - Clarified livestream configuration with helpful comments
+   - Added `type: webrtc` for explicit WebRTC mode specification
+
+**How to use the enhanced streaming:**
+```bash
+conda activate omnidrones
+cd /home/ubuntu/OmniDrone/OmniDrones/scripts
+
+# Run with WebRTC enabled (connection info will be printed automatically)
+python play.py task=Hover headless=true livestream.enabled=true
+```
+
+The console will display:
+```
+================================================================================
+🚀 ISAAC SIM 4.1.0 (HEADLESS) IS RUNNING
+--------------------------------------------------------------------------------
+📡 TO VIEW THE STREAM (Run this on your LOCAL machine):
+   ssh -L 8211:localhost:8211 -L 49100:localhost:49100 ubuntu@YOUR_IP
+   
+📺 THEN OPEN CHROME/EDGE TO:
+   http://127.0.0.1:8211/streaming/webrtc-client/?server=127.0.0.1
+================================================================================
+```
+
+**Benefits:**
+- Works reliably on headless Brev cloud instances
+- Clear user guidance with automated connection instructions
+- No manual configuration required - just enable `livestream.enabled=true`
+- Proper render buffer sizing for stable WebRTC streaming

@@ -12,5 +12,18 @@ app.livestream.enabled = true
 app.window.drawMouse = true
 ngx.enabled = false
 
+# Enable WebRTC extension
+exts."omni.services.streamclient.webrtc".enabled = true
+
+# App settings for headless cloud streaming
+app.window.width = 1280
+app.window.height = 720
+app.window.enabled = false
+render.headless = true
+
+# 4.1.0 specific: Ensure the update loop runs correctly without a window
+app.runLoops.main.rateLimitEnabled = false
+app.runLoops.main.rateLimitFrequency = 60
+
 [settings.app.exts]
 folders = ["${app}/../exts", "${app}/../extscache", "${app}/../extsPhysics", "${app}/../extsUser"]

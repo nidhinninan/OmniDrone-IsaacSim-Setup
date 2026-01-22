@@ -6,8 +6,16 @@ hydra:
 
 headless: true
 
+# --- CHANGE THIS BLOCK ---
 livestream:
-  enabled: false
+  enabled: false       # Use this cmd to enable it E.g <python play.py task=Hover headless=true livestream.enabled=true>
+  type: webrtc        # <--- OPTIONAL: Be explicit (some versions require this)
+
+# --- ADD THESE LINES ---
+# SimulationApp often looks for top-level width/height for the render buffer
+width: 1280
+height: 720
+# ---------------------
 
 sim: ${task.sim}
 env: ${task.env}

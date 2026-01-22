@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import requests
 
 import hydra
 import torch
@@ -26,12 +27,36 @@ from torchrl.envs.transforms import TransformedEnv, InitTracker, Compose
 
 FILE_PATH = os.path.dirname(__file__)
 
+def print_brev_connection_info():
+    """
+    Fetches public IP and prints SSH tunnel commands for Isaac Sim 4.1.0 on Brev.
+    """
+    try:
+        # 1. Get the Public IP of the Brev Instance
+        public_ip = requests.get('https://api.ipify.org', timeout=3).text
+    except Exception:
+        public_ip = "YOUR_INSTANCE_IP"
+
+    port = 8211  # Standard WebRTC Signaling port for Isaac Sim 4.1.0
+    
+    print("\n" + "="*80)
+    print(f"🚀 ISAAC SIM 4.1.0 (HEADLESS) IS RUNNING")
+    print("-" * 80)
+    print(f"📡 TO VIEW THE STREAM (Run this on your LOCAL machine):")
+    print(f"   ssh -L {port}:localhost:{port} -L 49100:localhost:49100 ubuntu@{public_ip}")
+    print(f"")
+    print(f"📺 THEN OPEN CHROME/EDGE TO:")
+    print(f"   http://127.0.0.1:{port}/streaming/webrtc-client/?server=127.0.0.1")
+    print("="*80 + "\n")
+
 @hydra.main(config_path=FILE_PATH, config_name="train", version_base=None)
 def main(cfg):
     OmegaConf.register_new_resolver("eval", eval)
     OmegaConf.resolve(cfg)
     OmegaConf.set_struct(cfg, False)
     simulation_app = init_simulation_app(cfg)
+
+    print_brev_connection_info()
 
     setproctitle(cfg.task.name)
     print(OmegaConf.to_yaml(cfg))

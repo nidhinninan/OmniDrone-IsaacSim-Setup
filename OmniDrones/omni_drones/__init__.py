@@ -32,18 +32,45 @@ CONFIG_PATH = os.path.join(os.path.dirname(__file__), os.path.pardir, "cfg")
 
 def init_simulation_app(cfg):
     # launch the simulator
-    config = {"headless": cfg.get("headless", True), "anti_aliasing": 1}
+    # config = {"headless": cfg.get("headless", True), "anti_aliasing": 1}
+    # livestream_enabled = cfg.get("livestream", {}).get("enabled", False)
+    
+    # 1. Check if we enabled livestream via CLI (livestream.enabled=true)   # This is the key fix for Brev/Headless
     livestream_enabled = cfg.get("livestream", {}).get("enabled", False)
+    
+    # 2. Build the config. 
+    # CRITICAL FIX: We add 'livestream', 'width', and 'height' here.
+    config = {
+        "headless": cfg.get("headless", True),
+        "anti_aliasing": 1,
+        "width": 1280,     # <--- REQUIRED for Brev/Headless
+        "height": 720,     # <--- REQUIRED for Brev/Headless
+    }
+
     # load cheaper kit config in headless
     # if cfg.headless:
     #     app_experience = f"{os.environ['EXP_PATH']}/omni.isaac.sim.python.gym.headless.kit"
     # else:
     #     app_experience = f"{os.environ['EXP_PATH']}/omni.isaac.sim.python.kit"
-    if livestream_enabled:
+    # if livestream_enabled:
+    #     app_experience = f"{os.environ['EXP_PATH']}/omni.isaac.sim.omnidrones.webrtc.kit"
+    #     config["enable_extension:omni.services.streamclient.webrtc"] = True
+    # else:
+    #     app_experience = f"{os.environ['EXP_PATH']}/omni.isaac.sim.python.kit"
+
+    if livestream_enabled:    # This is the key fix for Brev/Headless
+        # Load the WebRTC kit file
         app_experience = f"{os.environ['EXP_PATH']}/omni.isaac.sim.omnidrones.webrtc.kit"
+        
+        # Force the driver to WebRTC mode
+        config["livestream"] = 2  
+        
+        # Redundant safety enable
         config["enable_extension:omni.services.streamclient.webrtc"] = True
+        print(f"[Init] Launching with WebRTC Enabled on Port 8211")
     else:
         app_experience = f"{os.environ['EXP_PATH']}/omni.isaac.sim.python.kit"
+    
     simulation_app = SimulationApp(config, experience=app_experience)
     # simulation_app = SimulationApp(config)
     return simulation_app
