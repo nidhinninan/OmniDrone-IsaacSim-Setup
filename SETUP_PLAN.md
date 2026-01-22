@@ -476,14 +476,26 @@ The console will display:
 
 **How to implement the fix on your Brev VM:**
 
-1. **Install and Configure Coturn:**
+1. **Coturn is pre-installed** on Isaac Launchable Brev instances. Verify:
    ```bash
-   sudo apt update && sudo apt install -y coturn
-   # Configure /etc/turnserver.conf with your Public IP and credentials
-   # Enable and start the service
+   systemctl status coturn
    ```
-2. **Patch the WebRTC JS:**
-   Locate the JS file in `isaac-sim-4.1.0/extscache/omni.services.streamclient.webrtc-1.3.8/web/` and replace `new RTCPeerConnection()` with a configuration object containing your STUN/TURN servers.
+
+2. **Apply the WebRTC patch** (automatic script included in repo):
+   ```bash
+   python3 /home/ubuntu/OmniDrone/patch_webrtc.py
+   ```
+   
+   This script:
+   - Backs up the original `kit-player.js`
+   - Injects STUN/TURN configuration (`OV_ICE_CONFIG`)
+   - Replaces all `new RTCPeerConnection()` calls
+
+3. **Credentials configured:**
+   - TURN Server: `54.158.162.11:3478`
+   - Username: `webrtc`
+   - Password: `omnidrone2026`
+   - STUN: Google public STUN servers
 
 **Updated Connection Instructions:**
 The console now includes the TURN port:
