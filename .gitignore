@@ -1,0 +1,28 @@
+# Dependencies and Large Files
+isaac-sim-4.1.0/
+*.zip
+*.tar.gz
+miniconda3/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+
+# Simulation outputs
+*.usd
+*.usda
+*.usdc
+*.log
+
+# Project specific
+OmniDrones/
+IsaacLab/
