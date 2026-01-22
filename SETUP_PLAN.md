@@ -395,3 +395,13 @@ cd /home/ubuntu/OmniDrone/OmniDrones/scripts
 python play.py task=Hover headless=true livestream.enabled=true
 ```
 Then view at `http://<BREV_INSTANCE_HOST>/viewer`.
+
+### 3. API Incompatibility: `get_world_poses()` TypeError (Fixed Jan 2026)
+
+**Issue:** `TypeError: ArticulationView.get_world_poses() got an unexpected keyword argument 'usd'`
+
+**Root Cause:** Isaac Sim 4.1.0 added a `usd` parameter to the `get_world_poses()` method in base classes (`XFormPrimView`), but OmniDrones' custom `ArticulationView` and `RigidPrimView` wrappers didn't include this parameter, causing initialization failures.
+
+**Corrections Made:**
+- Updated `omni_drones/views/__init__.py` to add `usd: bool = False` parameter to both `ArticulationView.get_world_poses()` and `RigidPrimView.get_world_poses()` methods.
+- This change maintains backward compatibility while supporting Isaac Sim 4.1.0's API.
