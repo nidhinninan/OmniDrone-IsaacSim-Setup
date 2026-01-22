@@ -455,15 +455,39 @@ The console will display:
 🚀 ISAAC SIM 4.1.0 (HEADLESS) IS RUNNING
 --------------------------------------------------------------------------------
 📡 TO VIEW THE STREAM (Run this on your LOCAL machine):
-   ssh -L 8211:localhost:8211 -L 49100:localhost:49100 ubuntu@YOUR_IP
+   ssh -L 8211:localhost:8211 -L 49100:localhost:49100 -L 3478:localhost:3478 ubuntu@YOUR_IP
    
 📺 THEN OPEN CHROME/EDGE TO:
    http://127.0.0.1:8211/streaming/webrtc-client/?server=127.0.0.1
 ================================================================================
 ```
 
-**Benefits:**
-- Works reliably on headless Brev cloud instances
-- Clear user guidance with automated connection instructions
-- No manual configuration required - just enable `livestream.enabled=true`
-- Proper render buffer sizing for stable WebRTC streaming
+### 5. WebRTC NAT Traversal (STUN/TURN) Fix (Fixed Jan 2026)
+
+**Issue:** Users experiencing a "Black Screen" or "ICE Connection Failed" error when connecting to the WebRTC stream from a local browser to the Brev cloud instance.
+
+**Root Cause:** WebRTC signaling (SDP exchange) succeeds, but the media stream fails to establish because the browser and server are behind NATs (Network Address Translation) and cannot find a direct peer-to-peer path.
+
+**Corrections Made:**
+
+1.  **Coturn TURN Server Integration:** Added instructions and configuration for setting up a Coturn server on the Brev VM to act as a relay for WebRTC traffic.
+2.  **WebRTC Client Patch:** Identified the need to patch the built-in Isaac Sim WebRTC JavaScript library (`@nvidia/omniverse-webrtc-streaming-library.js`) to inject STUN/TURN server configurations into the `RTCPeerConnection`.
+3.  **Port Forwarding Update:** Updated `scripts/play.py` to include port `3478` (TURN) in the automated SSH tunnel instructions.
+
+**How to implement the fix on your Brev VM:**
+
+1. **Install and Configure Coturn:**
+   ```bash
+   sudo apt update && sudo apt install -y coturn
+   # Configure /etc/turnserver.conf with your Public IP and credentials
+   # Enable and start the service
+   ```
+2. **Patch the WebRTC JS:**
+   Locate the JS file in `isaac-sim-4.1.0/extscache/omni.services.streamclient.webrtc-1.3.8/web/` and replace `new RTCPeerConnection()` with a configuration object containing your STUN/TURN servers.
+
+**Updated Connection Instructions:**
+The console now includes the TURN port:
+```
+📡 TO VIEW THE STREAM (Run this on your LOCAL machine):
+   ssh -L 8211:localhost:8211 -L 49100:localhost:49100 -L 3478:localhost:3478 ubuntu@YOUR_IP
+```

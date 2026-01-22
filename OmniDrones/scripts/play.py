@@ -43,7 +43,10 @@ def print_brev_connection_info():
     print(f"🚀 ISAAC SIM 4.1.0 (HEADLESS) IS RUNNING")
     print("-" * 80)
     print(f"📡 TO VIEW THE STREAM (Run this on your LOCAL machine):")
-    print(f"   ssh -L {port}:localhost:{port} -L 49100:localhost:49100 ubuntu@{public_ip}")
+    print(
+        f"   ssh -L {port}:localhost:{port} -L 49100:localhost:49100 "
+        f"-L 3478:localhost:3478 ubuntu@{public_ip}"
+    )
     print(f"")
     print(f"📺 THEN OPEN CHROME/EDGE TO:")
     print(f"   http://127.0.0.1:{port}/streaming/webrtc-client/?server=127.0.0.1")
