@@ -377,7 +377,11 @@ source $ISAACSIM_PATH/setup_conda_env.sh
 **Issue:** OmniDrones default `init_simulation_app` was hardcoded to use a kit experience that did not support streaming, making it impossible to view simulation frames on a headless Brev VM.
 
 **Corrections Made:**
-1.  **New Kit Experience:** Created `/home/ubuntu/OmniDrone/isaac-sim-4.1.0/apps/omni.isaac.sim.omnidrones.webrtc.kit` which enables the WebRTC extension and livestreaming settings.
+1.  **New Kit Experience:** Created `omni.isaac.sim.omnidrones.webrtc.kit` which enables the WebRTC extension and livestreaming settings.
+    *   **NOTE:** This file is stored in the `kit_files/` directory of this repository. For the simulation to work, you **must copy this file** to your Isaac Sim installation's `apps/` directory:
+        ```bash
+        cp kit_files/omni.isaac.sim.omnidrones.webrtc.kit isaac-sim-4.1.0/apps/
+        ```
 2.  **Code Adaptation:** Modified `omni_drones/__init__.py` to:
     - Check for a `livestream.enabled` configuration flag.
     - Dynamically load the WebRTC kit experience if enabled.
